@@ -1,19 +1,23 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 
 export default function Home() {
   const [text, setText] = useState("");
   const [tweets, setTweets] = useState([]);
 
   useEffect(() => {
-    const fetchTweets = async () => {
+    const fetchData = async () => {
+      const getUser = await fetch("/api/user");
+      const getUserJson = await getUser.json();
+
       const getTweets = await fetch("/api/tweet");
       const getTweetsJson = await getTweets.json();
 
       setTweets(getTweetsJson);
     };
 
-    fetchTweets();
+    fetchData();
   }, []);
 
   const handleSubmit = async (e) => {
@@ -75,3 +79,5 @@ export default function Home() {
     </div>
   );
 }
+
+export const getServerSideProps = withPageAuthRequired();
