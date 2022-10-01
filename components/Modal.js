@@ -10,8 +10,10 @@ import {
 import moment from "moment";
 import { useUser } from "../context/UserContext";
 import { emojiList } from "../constants/data";
+import { BarLoader } from "react-spinners";
+import toast from "react-hot-toast";
 
-const Modal = ({ modalOpen, setModalOpen, tweet, setTweet }) => {
+const Modal = ({ modalOpen, setModalOpen, tweet, setTweet, setTweets }) => {
   const user = useUser();
   const [input, setInput] = useState("");
   const [editText, setEditText] = useState("");
@@ -46,9 +48,75 @@ const Modal = ({ modalOpen, setModalOpen, tweet, setTweet }) => {
     }
   };
 
-  const sendTweet = async () => {};
+  const onTweetSubmit = async () => {
+    if (loading) return;
+    setLoading(true);
+    const tweet = {
+      postedAt: Date.now(),
+      body: input,
+      likes: [],
+      user: {
+        id: user.id,
+        name: user.name,
+        nickname: user.nickname,
+        picture: user.picture,
+      },
+    };
 
-  const sendUpdate = async () => {};
+    const res = await fetch("/api/tweet", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(tweet),
+    });
+
+    const resJson = await res.json();
+
+    setTweets((tweets) => [
+      {
+        _id: resJson.insertedId,
+        ...tweet,
+      },
+      ...tweets,
+    ]);
+
+    setLoading(false);
+    setInput("");
+    setModalOpen(false);
+    toast("Your Tweet was sent.");
+  };
+
+  const onUpdateTweet = async () => {
+    setLoading(true);
+    await fetch("/api/tweet", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        _id: tweet._id,
+        body: editText,
+      }),
+    });
+
+    setTweets((tweets) =>
+      tweets.map((item) => {
+        if (item._id === tweet._id) {
+          return {
+            ...item,
+            body: editText,
+          };
+        }
+
+        return item;
+      })
+    );
+
+    setLoading(false);
+    setModalOpen(false);
+    toast("Your tweet has been updated!");
+  };
 
   const onBackgroundClick = (e) => {
     if (e.target.classList.contains("emojiModal")) return;
@@ -123,6 +191,9 @@ const Modal = ({ modalOpen, setModalOpen, tweet, setTweet }) => {
                   <XIcon className='h-[22px] text-mainWhite' />
                 </div>
               </div>
+              <div>
+                <BarLoader loading={loading} width='100%' color='#1d9bf0' />
+              </div>
               <div className='flex px-4 pb-2.5 sm:px-6'>
                 <div className='w-full'>
                   <div className='mt-7 flex space-x-3 w-full'>
@@ -137,24 +208,29 @@ const Modal = ({ modalOpen, setModalOpen, tweet, setTweet }) => {
                           input && "space-y-2.5"
                         }`}
                       >
-                        <textarea
-                          value={tweet !== undefined ? editText : input}
-                          onChange={(e) =>
-                            tweet !== undefined
-                              ? setEditText(e.target.value)
-                              : setInput(e.target.value)
-                          }
-                          placeholder={`${
-                            tweet !== undefined
-                              ? "Edit your tweet"
-                              : "What's happening?"
-                          }`}
-                          rows='2'
-                          className='bg-transparent outline-none text-mainWhite text-lg placeholder-textGray tracking-wide w-full min-h-[80px]'
-                          style={{
-                            resize: "none",
-                          }}
-                        />
+                        {tweet !== undefined ? (
+                          <textarea
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            placeholder='Edit your tweet'
+                            rows='2'
+                            className='bg-transparent outline-none text-mainWhite text-lg placeholder-textGray tracking-wide w-full min-h-[80px]'
+                            style={{
+                              resize: "none",
+                            }}
+                          />
+                        ) : (
+                          <textarea
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="What's happening?"
+                            rows='2'
+                            className='bg-transparent outline-none text-mainWhite text-lg placeholder-textGray tracking-wide w-full min-h-[80px]'
+                            style={{
+                              resize: "none",
+                            }}
+                          />
+                        )}
 
                         {selectedFile && (
                           <div className='relative'>
@@ -209,9 +285,14 @@ const Modal = ({ modalOpen, setModalOpen, tweet, setTweet }) => {
                         <button
                           className='bg-primaryBlue text-white rounded-full px-4 py-1.5 font-bold shadow-md hover:bg-hoverBlue disabled:hover:bg-primaryBlue disabled:opacity-50 disabled:cursor-default'
                           type='submit'
-                          onClick={tweet !== undefined ? sendUpdate : sendTweet}
+                          disabled={
+                            loading || (editText === "" && input === "")
+                          }
+                          onClick={
+                            tweet !== undefined ? onUpdateTweet : onTweetSubmit
+                          }
                         >
-                          {tweet !== undefined ? "Edit" : "Tweet"}
+                          {tweet !== undefined ? "Update" : "Tweet"}
                         </button>
                       </div>
                     </div>

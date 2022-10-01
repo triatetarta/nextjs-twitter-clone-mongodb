@@ -81,6 +81,7 @@ export default function Home() {
             setModalOpen={setModalOpen}
             tweet={tweet}
             setTweet={setTweet}
+            setTweets={setTweets}
           />
         )}
 
