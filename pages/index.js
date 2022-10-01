@@ -4,15 +4,18 @@ import { getSession, withPageAuthRequired } from "@auth0/nextjs-auth0";
 import Sidebar from "../components/Sidebar";
 import Feed from "../components/Feed";
 import Widgets from "../components/Widgets";
+import { useSetUser } from "../context/UserContext";
 
 export default function Home() {
   const [text, setText] = useState("");
   const [tweets, setTweets] = useState([]);
+  const setUser = useSetUser();
 
   useEffect(() => {
     const fetchData = async () => {
       const getUser = await fetch("/api/user");
       const getUserJson = await getUser.json();
+      setUser(getUserJson);
 
       const getTweets = await fetch("/api/tweet");
       const getTweetsJson = await getTweets.json();
@@ -61,7 +64,7 @@ export default function Home() {
 
       <main className='min-h-screen flex max-w-[1500px] mx-auto'>
         <Sidebar />
-        <Feed tweets={tweets} />
+        <Feed tweets={tweets} setTweets={setTweets} />
 
         <Widgets />
 

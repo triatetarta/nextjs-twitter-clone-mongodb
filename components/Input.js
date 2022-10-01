@@ -6,8 +6,11 @@ import {
   XIcon,
 } from "@heroicons/react/outline";
 import { useRef, useState } from "react";
+import { useUser } from "../context/UserContext";
+import toast from "react-hot-toast";
 
-const Input = () => {
+const Input = ({ setTweets }) => {
+  const user = useUser();
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -25,18 +28,52 @@ const Input = () => {
     };
   };
 
+  const onTweetSubmit = async () => {
+    const tweet = {
+      postedAt: Date.now(),
+      body: input,
+      likes: [],
+      user: {
+        id: user.id,
+        name: user.name,
+        nickname: user.nickname,
+        picture: user.picture,
+      },
+    };
+
+    const res = await fetch("/api/tweet", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(tweet),
+    });
+
+    const resJson = await res.json();
+
+    setTweets((tweets) => [
+      {
+        _id: resJson.insertedId,
+        ...tweet,
+      },
+      ...tweets,
+    ]);
+
+    setInput("");
+    toast("Your Tweet was sent.");
+  };
+
   return (
     <div
       className={`border-b border-gray-700 p-3 flex space-x-3 overflow-y-scroll scrollbar-hide ${
         loading && "opacity-60"
       }`}
     >
-      {/* <img
-        src={session.user.image}
+      <img
+        src={user?.picture}
         alt=''
         className='h-11 w-11 rounded-full cursor-pointer'
-        onClick={signOut}
-      /> */}
+      />
       <div className='divide-y divide-gray-700 w-full'>
         <div className={`${selectedFile && "pb-7"} ${input && "space-y-2.5"}`}>
           <textarea
@@ -122,7 +159,7 @@ const Input = () => {
             <button
               className='bg-primaryBlue text-white rounded-full px-4 py-1.5 font-bold shadow-md hover:bg-hoverBlue disabled:hover:bg-primaryBlue disabled:opacity-50 disabled:cursor-default'
               disabled={!input && !selectedFile}
-              //   onClick={sendPost}
+              onClick={onTweetSubmit}
             >
               Tweet
             </button>

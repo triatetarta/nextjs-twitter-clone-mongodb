@@ -2,7 +2,7 @@ import { SparklesIcon } from "@heroicons/react/outline";
 import Input from "./Input";
 import Tweet from "./Tweet";
 
-const Feed = ({ tweets }) => {
+const Feed = ({ tweets, setTweets }) => {
   return (
     <div className='flex-grow border-l border-r border-gray-700 max-w-2xl sm:ml-[73px] xl:ml-[370px]'>
       <div className='text-mainWhite flex items-center sm:justify-between py-2 px-3 sticky top-0 z-50 bg-mainBg border-b border-gray-700'>
@@ -12,10 +12,10 @@ const Feed = ({ tweets }) => {
         </div>
       </div>
 
-      <Input />
+      <Input setTweets={setTweets} />
       <div className='pb-72'>
         {tweets?.map((tweet) => {
-          return <Tweet />;
+          return <Tweet key={tweet._id} tweet={tweet} />;
         })}
       </div>
     </div>
