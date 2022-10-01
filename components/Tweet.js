@@ -27,9 +27,35 @@ const Tweet = ({
 }) => {
   const user = useUser();
   const { _id, postedAt, body, user: tweetUser, likes } = tweet;
+  const [updatingLike, setUpdatingLike] = useState(false);
   const [likesState, setLikesState] = useState(likes);
 
   const router = useRouter();
+
+  const likeTweet = async () => {
+    setUpdatingLike(true);
+    let action = likesState.includes(user.id) ? "$pull" : "$addToSet";
+
+    await fetch("/api/tweet/like", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        _id,
+        userId: user.id,
+        action,
+      }),
+    });
+
+    setLikesState((likes) => {
+      if (likesState.includes(user.id)) {
+        return likes.filter((like) => like !== user.id);
+      }
+      return [...likes, user.id];
+    });
+    setUpdatingLike(false);
+  };
 
   return (
     <div
@@ -110,7 +136,7 @@ const Tweet = ({
             className='flex items-center space-x-1 group'
             onClick={(e) => {
               e.stopPropagation();
-              // likePost();
+              likeTweet();
             }}
           >
             <div className='icon group-hover:bg-lightRed/10'>
@@ -122,9 +148,10 @@ const Tweet = ({
             </div>
             {likesState.length > 0 && (
               <span
-                className={`group-hover:text-lightRed text-sm ${
-                  liked && "text-lightRed"
-                }`}
+                className={`group-hover:text-lightRed text-sm 
+                ${likesState.includes(user.id) && "text-lightRed"}
+                
+                `}
               >
                 {likesState.length}
               </span>

@@ -12,13 +12,22 @@ import {
 } from "@heroicons/react/outline";
 import SidebarLink from "./SidebarLink";
 import { useUser } from "../context/UserContext";
+import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 const Sidebar = ({ setModalOpen, setTweet }) => {
   const user = useUser();
+  const [showDetails, setShowDetails] = useState(false);
+
+  const router = useRouter();
 
   return (
     <div className='hidden sm:flex flex-col items-center xl:items-start xl:w-[340px] p-2 fixed h-full'>
-      <div className='flex items-center justify-center w-14 h-14 hoverAnimation p-0 xl:ml-24 relative'>
+      <div
+        onClick={() => router.push("/")}
+        className='flex items-center justify-center w-14 h-14 hoverAnimation p-0 xl:ml-24 relative'
+      >
         <Image
           src='/assets/twitter.jpg'
           width={30}
@@ -52,7 +61,11 @@ const Sidebar = ({ setModalOpen, setTweet }) => {
       >
         Tweet
       </button>
-      <div className='text-mainWhite flex items-center justify-center mt-auto hoverAnimation xl:ml-auto xl:-mr-5'>
+
+      <div
+        onClick={() => setShowDetails(!showDetails)}
+        className='text-mainWhite flex items-center justify-center mt-auto hoverAnimation xl:ml-auto xl:-mr-5 relative'
+      >
         <img
           src={user?.picture}
           alt='avatar'
@@ -63,6 +76,36 @@ const Sidebar = ({ setModalOpen, setTweet }) => {
           <p className='text-textGray'>@{user?.nickname}</p>
         </div>
         <DotsHorizontalIcon className='h-5 hidden xl:inline ml-10' />
+
+        {showDetails && (
+          <div className='profileModal bg-mainBg w-[280px] rounded-lg flex flex-wrap flex-col py-4 z-50 border border-gray-700 absolute -top-48 left-0'>
+            <div className='border-b border-gray-700 pb-4 cursor-default'>
+              <div className='flex items-center px-4'>
+                <img
+                  src={user?.picture}
+                  alt='avatar'
+                  className='h-10 w-10 rounded-full xl:mr-2.5'
+                />
+                <div className='flex flex-col ml-3'>
+                  <h3 className='font-medium'>{user?.name}</h3>
+                  <h4 className='text-textGray'>@{user?.nickname}</h4>
+                </div>
+              </div>
+            </div>
+            <div className='flex flex-col'>
+              <Link href='/profile'>
+                <a className='hover:bg-hoverGray/40 transition-colors duration-300 ease-out block px-4 py-2'>
+                  Profile
+                </a>
+              </Link>
+              <Link href='/api/auth/logout'>
+                <a className='hover:bg-hoverGray/40 transition-colors duration-300 ease-out block px-4 py-2'>
+                  Log out @{user?.nickname}
+                </a>
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
