@@ -1,4 +1,5 @@
 import {
+  ChartBarIcon,
   ChatIcon,
   DotsHorizontalIcon,
   HeartIcon,
@@ -12,20 +13,31 @@ import {
   ChatIcon as ChatIconFilled,
 } from "@heroicons/react/solid";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import moment from "moment";
 import { useUser } from "../context/UserContext";
 
-const Tweet = ({ tweet, tweetPage }) => {
+const Tweet = ({
+  tweet,
+  tweetPage,
+  setTweet,
+  setModalOpen,
+  setPromptModal,
+  setTweetId,
+}) => {
   const user = useUser();
   const { _id, postedAt, body, user: tweetUser, likes } = tweet;
-
   const [likesState, setLikesState] = useState(likes);
+
+  const router = useRouter();
 
   return (
     <div
       className='p-3 flex cursor-pointer border-b border-gray-700 hover:bg-hoverGray/20 transition-colors duration-200 ease-out'
-      onClick={() => router.push(`/${id}`)}
+      onClick={(e) => {
+        e.stopPropagation();
+        router.push(`/${_id}`);
+      }}
     >
       {!tweetPage && (
         <img
@@ -74,23 +86,16 @@ const Tweet = ({ tweet, tweetPage }) => {
         </div>
         {tweetPage && <p className='text-mainWhite mt-0.5 text-xl'>{body}</p>}
         {/* <img
-        src={post?.image}
-        alt=''
-        className='rounded-2xl max-h-[700px] object-cover mr-2'
-      /> */}
+          src={post?.image}
+          alt=''
+          className='rounded-2xl max-h-[700px] object-cover mr-2'
+        /> */}
         <div
           className={`text-textGray flex justify-between w-10/12 ${
             tweetPage && "mx-auto"
           }`}
         >
-          <div
-            className='flex items-center space-x-1 group'
-            //   onClick={(e) => {
-            //     e.stopPropagation();
-            //     dispatch(setPostId(id));
-            //     dispatch(setModalOpen());
-            //   }}
-          >
+          <div className='flex items-center space-x-1 group'>
             <div className='icon group-hover:bg-primaryBlue group-hover:bg-opacity-10'>
               <ChatIcon className='h-5 group-hover:text-primaryBlue' />
             </div>
@@ -126,9 +131,22 @@ const Tweet = ({ tweet, tweetPage }) => {
             )}
           </div>
 
-          <div className='icon group'>
-            <PencilAltIcon className='h-5 group-hover:text-primaryBlue' />
-          </div>
+          {user?.id === tweetUser?.id ? (
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                setModalOpen(true);
+                setTweet(tweet);
+              }}
+              className='icon group'
+            >
+              <PencilAltIcon className='h-5 group-hover:text-primaryBlue' />
+            </div>
+          ) : (
+            <div className='icon group'>
+              <ChartBarIcon className='h-5 group-hover:text-primaryBlue' />
+            </div>
+          )}
 
           <div className='icon group'>
             <SwitchHorizontalIcon className='h-5 group-hover:text-lightGreen' />
@@ -136,12 +154,12 @@ const Tweet = ({ tweet, tweetPage }) => {
 
           {user?.id === tweetUser?.id ? (
             <div
-              className='flex items-center space-x-1 group'
               onClick={(e) => {
                 e.stopPropagation();
-                deleteDoc(doc(db, "posts", id));
-                router.push("/");
+                setTweetId(_id);
+                setPromptModal(true);
               }}
+              className='flex items-center space-x-1 group'
             >
               <div className='icon group-hover:bg-lightRed/10'>
                 <TrashIcon className='h-5 group-hover:text-lightRed' />

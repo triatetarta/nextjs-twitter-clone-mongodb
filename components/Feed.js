@@ -2,7 +2,17 @@ import { SparklesIcon } from "@heroicons/react/outline";
 import Input from "./Input";
 import Tweet from "./Tweet";
 
-const Feed = ({ tweets, setTweets }) => {
+const Feed = ({
+  tweets,
+  setTweets,
+  modalOpen,
+  setModalOpen,
+  setTweet,
+  emojiModalOpen,
+  setEmojiModalOpen,
+  setPromptModal,
+  setTweetId,
+}) => {
   return (
     <div className='flex-grow border-l border-r border-gray-700 max-w-2xl sm:ml-[73px] xl:ml-[370px]'>
       <div className='text-mainWhite flex items-center sm:justify-between py-2 px-3 sticky top-0 z-50 bg-mainBg border-b border-gray-700'>
@@ -12,10 +22,24 @@ const Feed = ({ tweets, setTweets }) => {
         </div>
       </div>
 
-      <Input setTweets={setTweets} />
+      <Input
+        setTweets={setTweets}
+        emojiModalOpen={emojiModalOpen}
+        setEmojiModalOpen={setEmojiModalOpen}
+      />
       <div className='pb-72'>
         {tweets?.map((tweet) => {
-          return <Tweet key={tweet._id} tweet={tweet} />;
+          return (
+            <Tweet
+              setPromptModal={setPromptModal}
+              key={tweet._id}
+              tweet={tweet}
+              modalOpen={modalOpen}
+              setModalOpen={setModalOpen}
+              setTweet={setTweet}
+              setTweetId={setTweetId}
+            />
+          );
         })}
       </div>
     </div>

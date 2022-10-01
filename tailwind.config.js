@@ -14,6 +14,7 @@ module.exports = {
         hoverBlue: "#1a8cd8",
         primaryBlue: "#1d9bf0",
         textGray: "#8b98a5",
+        twitterRed: "#eb4034",
         lightGreen: "#00BA7C",
         hoverGreen: "#19363A",
         lightRed: "#F91880",

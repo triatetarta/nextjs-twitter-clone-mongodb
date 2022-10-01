@@ -1,13 +1,12 @@
 import { useRouter } from "next/router";
 
-function SidebarLink({ Icon, text, active, compose }) {
+function SidebarLink({ Icon, text, active, compose, setModalOpen, setTweet }) {
   const router = useRouter();
-  //   const dispatch = useDispatch();
 
   const handleClick = () => {
     if (compose) {
-      //   dispatch(setModalOpen());
-      //   dispatch(setPostId(""));
+      setModalOpen(true);
+      setTweet(undefined);
     }
 
     if (active) {
@@ -21,16 +20,16 @@ function SidebarLink({ Icon, text, active, compose }) {
     <div
       className={`text-mainWhite flex items-center justify-center xl:justify-start text-xl space-x-3 hoverAnimation ${
         active && "font-bold"
-      } ${compose && "bg-primaryBlue hover:bg-hoverBlue lg:hidden"}`}
+      } ${compose && "bg-primaryBlue hover:bg-hoverBlue xl:hidden"}`}
       onClick={handleClick}
     >
       {Icon === null ? (
-        <div>
+        <div className='h-7 w-7'>
           {compose && (
             <svg
               fill='white'
-              width={25}
-              height={25}
+              width='100%'
+              height='100%'
               viewBox='0 0 24 24'
               aria-hidden='true'
             >
@@ -43,7 +42,7 @@ function SidebarLink({ Icon, text, active, compose }) {
       ) : (
         <Icon className='h-7 w-7' />
       )}
-      {/* <span className='hidden xl:inline'>{text}</span> */}
+      <span className='hidden xl:inline'>{text}</span>
     </div>
   );
 }

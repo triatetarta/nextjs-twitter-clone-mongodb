@@ -8,12 +8,15 @@ import {
 import { useRef, useState } from "react";
 import { useUser } from "../context/UserContext";
 import toast from "react-hot-toast";
+import { emojiList } from "../constants/data";
+import { BarLoader } from "react-spinners";
 
-const Input = ({ setTweets }) => {
+const Input = ({ setTweets, emojiModalOpen, setEmojiModalOpen }) => {
   const user = useUser();
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [emojis, setEmojis] = useState(emojiList);
 
   const filePickerRef = useRef(null);
 
@@ -28,7 +31,17 @@ const Input = ({ setTweets }) => {
     };
   };
 
+  const addEmoji = (emj) => {
+    if (input !== "") {
+      setInput(input + emj);
+    } else {
+      setInput(emj);
+    }
+  };
+
   const onTweetSubmit = async () => {
+    if (loading) return;
+    setLoading(true);
     const tweet = {
       postedAt: Date.now(),
       body: input,
@@ -59,19 +72,23 @@ const Input = ({ setTweets }) => {
       ...tweets,
     ]);
 
+    setLoading(false);
     setInput("");
     toast("Your Tweet was sent.");
   };
 
   return (
     <div
-      className={`border-b border-gray-700 p-3 flex space-x-3 overflow-y-scroll scrollbar-hide ${
+      className={`border-b border-gray-700 p-3 flex space-x-3 overflow-y-scroll scrollbar-hide relative ${
         loading && "opacity-60"
       }`}
     >
+      <div className='absolute top-0 left-0 right-0'>
+        <BarLoader loading={loading} width='100%' color='#1d9bf0' />
+      </div>
       <img
         src={user?.picture}
-        alt=''
+        alt='avatar'
         className='h-11 w-11 rounded-full cursor-pointer'
       />
       <div className='divide-y divide-gray-700 w-full'>
@@ -126,8 +143,8 @@ const Input = ({ setTweets }) => {
                 onClick={(e) => {
                   e.stopPropagation();
                   emojiModalOpen
-                    ? dispatch(setEmojiModalClose())
-                    : dispatch(setEmojiModalOpen());
+                    ? setEmojiModalOpen(false)
+                    : setEmojiModalOpen(true);
                 }}
               >
                 <EmojiHappyIcon className='text-primaryBlue h-[20px]' />
@@ -137,7 +154,7 @@ const Input = ({ setTweets }) => {
                 <CalendarIcon className='text-primaryBlue h-[20px]' />
               </div>
 
-              {/* {emojiModalOpen && (
+              {emojiModalOpen && (
                 <div className='emojiModal bg-mainBg absolute top-[180px] -ml-[40px] w-[280px] rounded-lg flex flex-wrap p-4 border border-gray-700'>
                   {emojis.map((emj, index) => {
                     return (
@@ -154,7 +171,7 @@ const Input = ({ setTweets }) => {
                     );
                   })}
                 </div>
-              )} */}
+              )}
             </div>
             <button
               className='bg-primaryBlue text-white rounded-full px-4 py-1.5 font-bold shadow-md hover:bg-hoverBlue disabled:hover:bg-primaryBlue disabled:opacity-50 disabled:cursor-default'

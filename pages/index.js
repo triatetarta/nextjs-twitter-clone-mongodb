@@ -1,18 +1,27 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import { getSession, withPageAuthRequired } from "@auth0/nextjs-auth0";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import Sidebar from "../components/Sidebar";
 import Feed from "../components/Feed";
 import Widgets from "../components/Widgets";
 import { useSetUser } from "../context/UserContext";
+import Modal from "../components/Modal";
+import PromptModal from "../components/PromptModal";
+import { ClipLoader } from "react-spinners";
 
 export default function Home() {
-  const [text, setText] = useState("");
+  const [loading, setLoading] = useState(false);
   const [tweets, setTweets] = useState([]);
+  const [tweet, setTweet] = useState(undefined);
+  const [tweedId, setTweetId] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [promptModal, setPromptModal] = useState(false);
+  const [emojiModalOpen, setEmojiModalOpen] = useState(false);
   const setUser = useSetUser();
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const getUser = await fetch("/api/user");
       const getUserJson = await getUser.json();
       setUser(getUserJson);
@@ -21,39 +30,24 @@ export default function Home() {
       const getTweetsJson = await getTweets.json();
 
       setTweets(getTweetsJson);
+      setLoading(false);
     };
 
     fetchData();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setText("");
-    const tweet = {
-      postedAt: Date.now(),
-      body: text,
-      likes: [],
-      user: {
-        id: "59489548",
-        name: "Dimitris",
-        nickname: "Three Quarters",
-        picture: "",
-      },
-    };
-
-    const response = await fetch("api/tweet", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(tweet),
-    });
-
-    const responseJson = await response.json();
-
-    console.log("response: ", responseJson);
+  const onBackgroundClick = (e) => {
+    if (e.target.classList.contains("emojiModal")) return;
+    setEmojiModalOpen(false);
   };
 
+  if (loading) {
+    return (
+      <div className='min-h-screen flex items-center justify-center'>
+        <ClipLoader loading={loading} color='#1d9bf0' />;
+      </div>
+    );
+  }
   return (
     <div>
       <Head>
@@ -62,33 +56,45 @@ export default function Home() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <main className='min-h-screen flex max-w-[1500px] mx-auto'>
-        <Sidebar />
-        <Feed tweets={tweets} setTweets={setTweets} />
+      <main
+        onClick={onBackgroundClick}
+        className='min-h-screen flex max-w-[1500px] mx-auto'
+      >
+        <Sidebar setModalOpen={setModalOpen} setTweet={setTweet} />
+        <Feed
+          tweets={tweets}
+          setTweets={setTweets}
+          setTweet={setTweet}
+          modalOpen={modalOpen}
+          setModalOpen={setModalOpen}
+          emojiModalOpen={emojiModalOpen}
+          setEmojiModalOpen={setEmojiModalOpen}
+          setPromptModal={setPromptModal}
+          setTweetId={setTweetId}
+        />
 
         <Widgets />
 
-        {/* {modalOpen && <Modal />} */}
+        {modalOpen && (
+          <Modal
+            modalOpen={modalOpen}
+            setModalOpen={setModalOpen}
+            tweet={tweet}
+            setTweet={setTweet}
+          />
+        )}
+
+        {promptModal && (
+          <PromptModal
+            setPromptModal={setPromptModal}
+            promptModal={promptModal}
+            setTweetId={setTweetId}
+            tweedId={tweedId}
+            setTweets={setTweets}
+            tweets={tweets}
+          />
+        )}
       </main>
-
-      {/* <form onSubmit={handleSubmit}>
-        <input
-          className='border'
-          type='text'
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-        <button type='submit' className='bg-blue-500 text-white'>
-          tweet
-        </button>
-      </form>
-
-      <div>
-        {tweets?.map((tweet) => {
-          console.log(tweet);
-          return <div key={tweet._id}>{tweet.body}</div>;
-        })}
-      </div> */}
     </div>
   );
 }
