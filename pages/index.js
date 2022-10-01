@@ -34,6 +34,7 @@ export default function Home() {
     };
 
     fetchData();
+    /* eslint:disable-next-line */
   }, []);
 
   const onBackgroundClick = (e) => {

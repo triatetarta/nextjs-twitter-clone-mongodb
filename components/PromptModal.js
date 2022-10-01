@@ -69,9 +69,9 @@ const PromptModal = ({
                   Delete Tweet?
                 </h4>
                 <p className='text-textGray text-base mt-2'>
-                  This can't be undone and it will be removed from your profile,
-                  the timeline of any accounts that follow you, and from Twitter
-                  search results.
+                  This cannot be undone and it will be removed from your
+                  profile, the timeline of any accounts that follow you, and
+                  from Twitter search results.
                 </p>
 
                 <button

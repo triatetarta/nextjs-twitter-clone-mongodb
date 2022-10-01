@@ -108,10 +108,10 @@ const Tweet = ({
 
           <div
             className='flex items-center space-x-1 group'
-            //   onClick={(e) => {
-            //     e.stopPropagation();
-            //     likePost();
-            //   }}
+            onClick={(e) => {
+              e.stopPropagation();
+              // likePost();
+            }}
           >
             <div className='icon group-hover:bg-lightRed/10'>
               {likesState.includes(user.id) ? (
