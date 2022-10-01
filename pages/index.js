@@ -1,6 +1,9 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+import { getSession, withPageAuthRequired } from "@auth0/nextjs-auth0";
+import Sidebar from "../components/Sidebar";
+import Feed from "../components/Feed";
+import Widgets from "../components/Widgets";
 
 export default function Home() {
   const [text, setText] = useState("");
@@ -56,9 +59,16 @@ export default function Home() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <h1 className='text-blue-500'>hello</h1>
+      <main className='min-h-screen flex max-w-[1500px] mx-auto'>
+        <Sidebar />
+        <Feed tweets={tweets} />
 
-      <form onSubmit={handleSubmit}>
+        <Widgets />
+
+        {/* {modalOpen && <Modal />} */}
+      </main>
+
+      {/* <form onSubmit={handleSubmit}>
         <input
           className='border'
           type='text'
@@ -75,7 +85,7 @@ export default function Home() {
           console.log(tweet);
           return <div key={tweet._id}>{tweet.body}</div>;
         })}
-      </div>
+      </div> */}
     </div>
   );
 }
