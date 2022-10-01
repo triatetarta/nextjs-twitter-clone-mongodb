@@ -79,7 +79,7 @@ const Input = ({ setTweets, emojiModalOpen, setEmojiModalOpen }) => {
 
   return (
     <div
-      className={`border-b border-gray-700 p-3 flex space-x-3 overflow-y-scroll scrollbar-hide relative ${
+      className={`border-b border-gray-700 p-3 flex space-x-3 relative ${
         loading && "opacity-60"
       }`}
     >
@@ -95,7 +95,9 @@ const Input = ({ setTweets, emojiModalOpen, setEmojiModalOpen }) => {
         <div className={`${selectedFile && "pb-7"} ${input && "space-y-2.5"}`}>
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => {
+              setInput(e.target.value);
+            }}
             placeholder="What's happening?"
             rows='2'
             className='bg-transparent outline-none text-mainWhite text-lg placeholder-gray-500 placeholder:font-normal tracking-wide w-full min-h-[50px]'
@@ -155,7 +157,7 @@ const Input = ({ setTweets, emojiModalOpen, setEmojiModalOpen }) => {
               </div>
 
               {emojiModalOpen && (
-                <div className='emojiModal bg-mainBg absolute top-[180px] -ml-[40px] w-[280px] rounded-lg flex flex-wrap p-4 border border-gray-700'>
+                <div className='emojiModal bg-mainBg absolute top-[130px] -ml-[40px] w-[280px] rounded-lg flex flex-wrap p-4 z-50 border border-gray-700'>
                   {emojis.map((emj, index) => {
                     return (
                       <div
