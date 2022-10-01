@@ -51,7 +51,7 @@ const Widgets = () => {
       </div>
 
       <div className='text-mainWhite space-y-3 bg-widgetBg pt-2 rounded-xl w-11/12 xl:w-9/12'>
-        /* eslint:disable-next-line */
+        {/* eslint:disable-next-line */}
         <h4 className='font-bold text-xl px-4'>What's happening</h4>
         {trendingResults?.map((result, index) => (
           <Trending key={index} result={result} />
