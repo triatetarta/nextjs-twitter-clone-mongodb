@@ -10,7 +10,7 @@ import PromptModal from "../components/PromptModal";
 import { ClipLoader } from "react-spinners";
 
 export default function Home() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [tweets, setTweets] = useState([]);
   const [tweet, setTweet] = useState(undefined);
   const [tweedId, setTweetId] = useState("");
@@ -21,7 +21,6 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       const getUser = await fetch("/api/user");
       const getUserJson = await getUser.json();
       setUser(getUserJson);
