@@ -1,6 +1,7 @@
 import { SparklesIcon } from "@heroicons/react/outline";
 import Input from "./Input";
 import Tweet from "./Tweet";
+import { BarLoader } from "react-spinners";
 
 const Feed = ({
   tweets,
@@ -12,6 +13,7 @@ const Feed = ({
   setEmojiModalOpen,
   setPromptModal,
   setTweetId,
+  searchLoading,
 }) => {
   return (
     <div className='flex-grow border-l border-r border-gray-700 max-w-2xl sm:ml-[73px] xl:ml-[370px]'>
@@ -27,6 +29,11 @@ const Feed = ({
         emojiModalOpen={emojiModalOpen}
         setEmojiModalOpen={setEmojiModalOpen}
       />
+
+      {searchLoading && (
+        <BarLoader loading={searchLoading} width='100%' color='#1d9bf0' />
+      )}
+
       <div className='pb-72'>
         {tweets?.map((tweet) => {
           return (

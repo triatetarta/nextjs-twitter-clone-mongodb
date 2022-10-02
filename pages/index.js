@@ -11,6 +11,7 @@ import { ClipLoader } from "react-spinners";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [tweets, setTweets] = useState([]);
   const [tweet, setTweet] = useState(undefined);
   const [tweedId, setTweetId] = useState("");
@@ -71,9 +72,10 @@ export default function Home() {
           setEmojiModalOpen={setEmojiModalOpen}
           setPromptModal={setPromptModal}
           setTweetId={setTweetId}
+          searchLoading={searchLoading}
         />
 
-        <Widgets />
+        <Widgets setTweets={setTweets} setSearchLoading={setSearchLoading} />
 
         {modalOpen && (
           <Modal

@@ -9,6 +9,7 @@ import {
   UserIcon,
   DotsCircleHorizontalIcon,
   DotsHorizontalIcon,
+  CheckIcon,
 } from "@heroicons/react/outline";
 import SidebarLink from "./SidebarLink";
 import { useUser } from "../context/UserContext";
@@ -78,17 +79,22 @@ const Sidebar = ({ setModalOpen, setTweet }) => {
         <DotsHorizontalIcon className='h-5 hidden xl:inline ml-10' />
 
         {showDetails && (
-          <div className='profileModal bg-mainBg w-[280px] rounded-lg flex flex-wrap flex-col py-4 z-50 border border-gray-700 absolute -top-48 left-0'>
+          <div className='profileModal bg-mainBg w-[320px] rounded-lg flex flex-wrap flex-col py-4 z-50 border border-gray-700 absolute -top-48 left-0'>
             <div className='border-b border-gray-700 pb-4 cursor-default'>
-              <div className='flex items-center px-4'>
-                <img
-                  src={user?.picture}
-                  alt='avatar'
-                  className='h-10 w-10 rounded-full xl:mr-2.5'
-                />
-                <div className='flex flex-col ml-3'>
-                  <h3 className='font-medium'>{user?.name}</h3>
-                  <h4 className='text-textGray'>@{user?.nickname}</h4>
+              <div className='flex items-center justify-between px-4'>
+                <div className='flex items-center'>
+                  <img
+                    src={user?.picture}
+                    alt='avatar'
+                    className='h-10 w-10 rounded-full xl:mr-2.5'
+                  />
+                  <div className='flex flex-col ml-3'>
+                    <h3 className='font-medium'>{user?.name}</h3>
+                    <h4 className='text-textGray'>@{user?.nickname}</h4>
+                  </div>
+                </div>
+                <div>
+                  <CheckIcon className='h-7 w-7 text-primaryBlue' />
                 </div>
               </div>
             </div>
