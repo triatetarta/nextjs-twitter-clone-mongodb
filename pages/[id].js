@@ -28,7 +28,8 @@ const TweetPage = () => {
     <div>
       <Head>
         <title>
-          {tweet?.user.nickname} on Twitter: "{tweet?.body}" Post title
+          {tweet?.user.nickname} on Twitter: &quot;{tweet?.body}&quot; Post
+          title
         </title>
         <link rel='icon' href='/favicon.ico' />
       </Head>
