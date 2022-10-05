@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
 import Search from "./Search";
+import axios from "axios";
 
 const Widgets = ({ setTweets, setSearchLoading }) => {
   const [loadingFollows, setLoadingFollows] = useState(true);
@@ -13,11 +14,9 @@ const Widgets = ({ setTweets, setSearchLoading }) => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const res = await fetch("https://randomuser.me/api/?results=3");
+      const { data } = await axios("https://randomuser.me/api/?results=3");
 
-      const resJson = await res.json();
-
-      setFollowResults(resJson.results);
+      setFollowResults(data.results);
 
       setLoadingFollows(false);
     };
@@ -25,13 +24,11 @@ const Widgets = ({ setTweets, setSearchLoading }) => {
     fetchUsers();
 
     const fetchNews = async () => {
-      const res = await fetch(
+      const { data } = await axios(
         `https://newsdata.io/api/1/news?apikey=${process.env.NEXT_PUBLIC_NEWS_API_KEY}&country=gb&domain=ctvnews_london`
       );
 
-      const resJson = await res.json();
-
-      setTrendingResults(resJson.results);
+      setTrendingResults(data.results);
 
       setLoadingTrending(false);
     };

@@ -8,6 +8,7 @@ import { useSetUser } from "../context/UserContext";
 import Modal from "../components/Modal";
 import PromptModal from "../components/PromptModal";
 import { ClipLoader } from "react-spinners";
+import axios from "axios";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -22,14 +23,12 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const getUser = await fetch("/api/user");
-      const getUserJson = await getUser.json();
-      setUser(getUserJson);
+      const getUser = await axios("/api/user");
+      setUser(getUser.data);
 
-      const getTweets = await fetch("/api/tweet");
-      const getTweetsJson = await getTweets.json();
+      const getTweets = await axios("/api/tweet");
+      setTweets(getTweets.data);
 
-      setTweets(getTweetsJson);
       setLoading(false);
     };
 

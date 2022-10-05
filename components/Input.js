@@ -10,12 +10,13 @@ import { useUser } from "../context/UserContext";
 import toast from "react-hot-toast";
 import { emojiList } from "../constants/data";
 import { BarLoader } from "react-spinners";
+import axios from "axios";
 
 const Input = ({ setTweets, emojiModalOpen, setEmojiModalOpen }) => {
   const user = useUser();
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [image, setImage] = useState(null);
   const [emojis, setEmojis] = useState(emojiList);
 
   const filePickerRef = useRef(null);
@@ -27,7 +28,7 @@ const Input = ({ setTweets, emojiModalOpen, setEmojiModalOpen }) => {
     }
 
     reader.onload = (readerEvent) => {
-      setSelectedFile(readerEvent.target.result);
+      setImage(readerEvent.target.result);
     };
   };
 
@@ -42,39 +43,82 @@ const Input = ({ setTweets, emojiModalOpen, setEmojiModalOpen }) => {
   const onTweetSubmit = async () => {
     if (loading) return;
     setLoading(true);
-    const tweet = {
-      postedAt: Date.now(),
-      body: input,
-      likes: [],
-      user: {
-        id: user.id,
-        name: user.name,
-        nickname: user.nickname,
-        picture: user.picture,
-      },
-    };
 
-    const res = await fetch("/api/tweet", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(tweet),
-    });
+    const signatureResponse = await axios.get(`api/image-upload/get-signature`);
 
-    const resJson = await res.json();
+    if (image !== null) {
+      const formData = new FormData();
+      formData.append("file", image);
+      formData.append("api_key", process.env.NEXT_PUBLIC_CLOUDAPIKEY);
+      formData.append("timestamp", signatureResponse.data.timestamp);
+      formData.append("signature", signatureResponse.data.signature);
 
-    setTweets((tweets) => [
-      {
-        _id: resJson.insertedId,
-        ...tweet,
-      },
-      ...tweets,
-    ]);
+      const cloudinaryResponse = await axios.post(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDNAME}/image/upload`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          onUploadProgress: function (e) {
+            console.log(e.loaded / e.total);
+          },
+        }
+      );
 
-    setLoading(false);
-    setInput("");
-    toast("Your Tweet was sent.");
+      const tweet = {
+        postedAt: Date.now(),
+        body: input,
+        image: cloudinaryResponse.data.secure_url,
+        likes: [],
+        user: {
+          id: user.id,
+          name: user.name,
+          nickname: user.nickname,
+          picture: user.picture,
+        },
+      };
+
+      const { data } = await axios.post("/api/tweet", tweet);
+
+      setTweets((tweets) => [
+        {
+          _id: data.insertedId,
+          ...tweet,
+        },
+        ...tweets,
+      ]);
+
+      setLoading(false);
+      setInput("");
+      setImage(null);
+      toast("Your Tweet was sent.");
+    } else {
+      const tweet = {
+        postedAt: Date.now(),
+        body: input,
+        image: "",
+        likes: [],
+        user: {
+          id: user.id,
+          name: user.name,
+          nickname: user.nickname,
+          picture: user.picture,
+        },
+      };
+
+      const { data } = await axios.post("/api/tweet", tweet);
+
+      setTweets((tweets) => [
+        {
+          _id: data.insertedId,
+          ...tweet,
+        },
+        ...tweets,
+      ]);
+
+      setLoading(false);
+      setInput("");
+      toast("Your Tweet was sent.");
+    }
   };
 
   return (
@@ -92,7 +136,7 @@ const Input = ({ setTweets, emojiModalOpen, setEmojiModalOpen }) => {
         className='h-11 w-11 rounded-full cursor-pointer'
       />
       <div className='divide-y divide-gray-700 w-full'>
-        <div className={`${selectedFile && "pb-7"} ${input && "space-y-2.5"}`}>
+        <div className={`${image && "pb-7"} ${input && "space-y-2.5"}`}>
           <textarea
             value={input}
             onChange={(e) => {
@@ -104,16 +148,16 @@ const Input = ({ setTweets, emojiModalOpen, setEmojiModalOpen }) => {
             style={{ resize: "none" }}
           />
 
-          {selectedFile && (
+          {image && (
             <div className='relative'>
               <div
                 className='absolute w-8 h-8 bg-[#15181c] hover:bg-[#272c26] bg-opacity-75 rounded-full flex items-center justify-center top-1 left-1 cursor-pointer transition-colors duration-200'
-                onClick={() => setSelectedFile(null)}
+                onClick={() => setImage(null)}
               >
                 <XIcon className='text-white h-5' />
               </div>
               <img
-                src={selectedFile}
+                src={image}
                 alt='file preview'
                 className='rounded-2xl max-h-80 object-contain'
               />
@@ -177,7 +221,7 @@ const Input = ({ setTweets, emojiModalOpen, setEmojiModalOpen }) => {
             </div>
             <button
               className='bg-primaryBlue text-white rounded-full px-4 py-1.5 font-bold shadow-md hover:bg-hoverBlue disabled:hover:bg-primaryBlue disabled:opacity-50 disabled:cursor-default'
-              disabled={!input && !selectedFile}
+              disabled={!input && !image}
               onClick={onTweetSubmit}
             >
               Tweet

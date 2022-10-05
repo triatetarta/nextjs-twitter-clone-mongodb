@@ -12,8 +12,16 @@ import { useUser } from "../context/UserContext";
 import { emojiList } from "../constants/data";
 import { BarLoader } from "react-spinners";
 import toast from "react-hot-toast";
+import axios from "axios";
 
-const Modal = ({ modalOpen, setModalOpen, tweet, setTweet, setTweets }) => {
+const Modal = ({
+  modalOpen,
+  setModalOpen,
+  tweet,
+  setTweet,
+  setTweets,
+  postPage,
+}) => {
   const user = useUser();
   const [input, setInput] = useState("");
   const [editText, setEditText] = useState("");
@@ -63,19 +71,11 @@ const Modal = ({ modalOpen, setModalOpen, tweet, setTweet, setTweets }) => {
       },
     };
 
-    const res = await fetch("/api/tweet", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(tweet),
-    });
-
-    const resJson = await res.json();
+    const { data } = await axios.post("/api/tweet", tweet);
 
     setTweets((tweets) => [
       {
-        _id: resJson.insertedId,
+        _id: data.insertedId,
         ...tweet,
       },
       ...tweets,
@@ -89,15 +89,9 @@ const Modal = ({ modalOpen, setModalOpen, tweet, setTweet, setTweets }) => {
 
   const onUpdateTweet = async () => {
     setLoading(true);
-    await fetch("/api/tweet", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        _id: tweet._id,
-        body: editText,
-      }),
+    await axios.put("/api/tweet", {
+      _id: tweet._id,
+      body: editText,
     });
 
     setTweets((tweets) =>
@@ -112,6 +106,16 @@ const Modal = ({ modalOpen, setModalOpen, tweet, setTweet, setTweets }) => {
         return item;
       })
     );
+
+    if (postPage) {
+      const fetchTweet = async () => {
+        const { data } = await axios(`/api/tweet/single/${tweet._id}`);
+
+        setTweet(data[0]);
+      };
+
+      fetchTweet();
+    }
 
     setLoading(false);
     setModalOpen(false);
@@ -184,8 +188,12 @@ const Modal = ({ modalOpen, setModalOpen, tweet, setTweet, setTweets }) => {
                 <div
                   className='hoverAnimation w-9 h-9 flex items-center justify-center xl:px-0'
                   onClick={() => {
-                    setTweet(undefined);
-                    setModalOpen(false);
+                    if (postPage) {
+                      setModalOpen(false);
+                    } else {
+                      setTweet(undefined);
+                      setModalOpen(false);
+                    }
                   }}
                 >
                   <XIcon className='h-[22px] text-mainWhite' />

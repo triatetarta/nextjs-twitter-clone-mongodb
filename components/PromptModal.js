@@ -1,4 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
+import axios from "axios";
 import { Fragment } from "react";
 import toast from "react-hot-toast";
 
@@ -17,14 +18,11 @@ const PromptModal = ({
 
   const onTweetDelete = async () => {
     if (tweedId === "") return;
-    await fetch(`/api/tweet/`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+
+    await axios.delete(`/api/tweet/`, {
+      data: {
         _id: tweedId,
-      }),
+      },
     });
 
     const updatedTweets = tweets.filter((tweet) => tweet._id !== tweedId);

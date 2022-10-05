@@ -1,5 +1,6 @@
 import { SearchIcon } from "@heroicons/react/outline";
 import { XCircleIcon } from "@heroicons/react/solid";
+import axios from "axios";
 import { useEffect, useState } from "react";
 
 const Search = ({ setTweets, setSearchLoading }) => {
@@ -13,10 +14,9 @@ const Search = ({ setTweets, setSearchLoading }) => {
 
     if (term.length > 2 || term.length === 0) {
       setSearchLoading(true);
-      const getTweets = await fetch(`/api/tweet/${term}`);
-      const getTweetsJson = await getTweets.json();
+      const getTweets = await axios(`/api/tweet/${term}`);
 
-      setTweets(getTweetsJson);
+      setTweets(getTweets.data);
       setSearchLoading(false);
     }
   };
@@ -25,9 +25,8 @@ const Search = ({ setTweets, setSearchLoading }) => {
     setSearchTerm("");
     const fetchData = async () => {
       setSearchLoading(true);
-      const getTweets = await fetch("/api/tweet");
-      const getTweetsJson = await getTweets.json();
-      setTweets(getTweetsJson);
+      const getTweets = await axios("/api/tweet");
+      setTweets(getTweets.data);
       setSearchLoading(false);
     };
     fetchData();

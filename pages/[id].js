@@ -5,20 +5,25 @@ import Widgets from "../components/Widgets";
 import Tweet from "../components/Tweet";
 import Sidebar from "../components/Sidebar";
 import { useEffect, useState } from "react";
+import { ClipLoader } from "react-spinners";
+import Modal from "../components/Modal";
+import axios from "axios";
 
 const TweetPage = () => {
   const [tweet, setTweet] = useState(undefined);
+  const [tweets, setTweets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
   const { id } = router.query;
 
   useEffect(() => {
     if (id === undefined) return;
     const fetchTweet = async () => {
-      const res = await fetch(`/api/tweet/single/${id}`);
+      const res = await axios(`/api/tweet/single/${id}`);
 
-      const resJson = await res.json();
-
-      setTweet(resJson[0]);
+      setTweet(res.data[0]);
+      setLoading(false);
     };
 
     fetchTweet();
@@ -47,7 +52,23 @@ const TweetPage = () => {
             Tweet
           </div>
 
-          {tweet && <Tweet id={id} tweet={tweet} postPage />}
+          {loading ? (
+            <div className='flex items-center justify-center py-10'>
+              <ClipLoader loading={loading} color='#1d9bf0' />
+            </div>
+          ) : (
+            <>
+              {tweet && (
+                <Tweet
+                  id={id}
+                  tweet={tweet}
+                  setModalOpen={setModalOpen}
+                  setTweet={setTweet}
+                  postPage
+                />
+              )}
+            </>
+          )}
 
           {/* {comments.length > 0 && (
             <div className='pb-72'>
@@ -63,7 +84,16 @@ const TweetPage = () => {
         </div>
         <Widgets />
 
-        {/* {modalOpen && <Modal />} */}
+        {modalOpen && (
+          <Modal
+            modalOpen={modalOpen}
+            setModalOpen={setModalOpen}
+            tweet={tweet}
+            setTweet={setTweet}
+            setTweets={setTweets}
+            postPage
+          />
+        )}
       </main>
     </div>
   );

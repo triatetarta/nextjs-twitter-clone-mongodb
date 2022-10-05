@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import moment from "moment";
 import { useUser } from "../context/UserContext";
+import axios from "axios";
 
 const Tweet = ({
   tweet,
@@ -26,7 +27,7 @@ const Tweet = ({
   setTweetId,
 }) => {
   const user = useUser();
-  const { _id, postedAt, body, user: tweetUser, likes } = tweet;
+  const { _id, postedAt, body, image, user: tweetUser, likes } = tweet;
   const [updatingLike, setUpdatingLike] = useState(false);
   const [likesState, setLikesState] = useState(likes);
 
@@ -36,16 +37,10 @@ const Tweet = ({
     setUpdatingLike(true);
     let action = likesState.includes(user.id) ? "$pull" : "$addToSet";
 
-    await fetch("/api/tweet/like", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        _id,
-        userId: user.id,
-        action,
-      }),
+    await axios.put("/api/tweet/like", {
+      _id,
+      userId: user.id,
+      action,
     });
 
     setLikesState((likes) => {
@@ -111,11 +106,15 @@ const Tweet = ({
           </div>
         </div>
         {tweetPage && <p className='text-mainWhite mt-0.5 text-xl'>{body}</p>}
-        {/* <img
-          src={post?.image}
-          alt=''
-          className='rounded-2xl max-h-[700px] object-cover mr-2'
-        /> */}
+
+        {image && (
+          <img
+            src={image}
+            alt='tweet attachment'
+            className='rounded-2xl max-h-[700px] object-cover mr-2'
+          />
+        )}
+
         <div
           className={`text-textGray flex justify-between w-10/12 ${
             tweetPage && "mx-auto"
